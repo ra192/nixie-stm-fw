@@ -1,0 +1,44 @@
+# STM32CubeMX generated files
+*.launch
+*.uvoptx
+*.uvprojx
+*.cproject
+*.project
+*.settings/
+*.mxproject
+
+# Build output
+/build/
+Debug/
+Release/
+*.elf
+*.hex
+*.bin
+*.map
+*.lst
+*.o
+*.d
+*.dep
+*.su
+*.a
+*.log
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+compile_commands.json
+
+# Misc
+*.bak
+*.tmp
+*.user
+*.DS_Store
+Thumbs.db
