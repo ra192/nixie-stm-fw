@@ -5,7 +5,7 @@
 
 #define DIGITS_NUM 6
 
-void nixie_set_digits(uint8_t *digit);
+void nixie_setDigits(uint8_t *digit);
 
 void nixie_refresh(void);
 

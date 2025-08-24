@@ -10,7 +10,7 @@ uint8_t _displayed_digits[DIGITS_NUM]; // Array to hold the digits for the Nixie
 
 uint8_t _current_displayed_index = 0; // Index of the currently displayed digit
 
-void nixie_set_digits(uint8_t *digit)
+void nixie_setDigits(uint8_t *digit)
 {
     for (int i = 0; i < DIGITS_NUM; i++)
     {
