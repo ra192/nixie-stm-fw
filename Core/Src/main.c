@@ -93,7 +93,7 @@ int main(void)
   uint32_t currentMs;
   uint32_t lastRefreshMs = 0;
 
-  nixie_set_digits((uint8_t[]){0, 1, 2, 3, 4, 5}); // Set initial digits to display
+  nixie_set_digits((uint8_t[]){0, 0, 0, 0, 0, 0}); // Set initial digits to display
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -102,11 +102,15 @@ int main(void)
   {
     currentMs = HAL_GetTick();
 
-    if ((currentMs - lastRefreshMs) >= 10)
-    {
+    if ((currentMs - lastRefreshMs) >= 1)    {
       lastRefreshMs = currentMs;
       nixie_refresh();
     }
+
+    if((currentMs % 1000) == 0) { // Every second, change the digits
+      nixie_set_digits((uint8_t[]){0, 0, 0, 0, currentMs / 10000 % 10, currentMs / 1000 % 10});
+    }
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
