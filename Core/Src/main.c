@@ -33,6 +33,9 @@
 /* USER CODE BEGIN PD */
 #define DS3231_I2C_ADDR 0x68
 
+#define DS3231_REG_SECOND 	0x00
+#define DS3231_REG_DOW 	0x03
+
 #define NIXIE_REFRESH_MS 2
 /* USER CODE END PD */
 
@@ -120,7 +123,6 @@ int main(void)
     if ((currentMs - timePrevRefreshMs) >= 1000)
     { // Every second, change the digits
       HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
-      // ds3231_getTime(&sTime);
       nixie_setDigits((uint8_t[]){0, 0, sTime.Minutes / 10, sTime.Minutes % 10, sTime.Seconds / 10, sTime.Seconds % 10});
     }
 
@@ -288,8 +290,10 @@ RTC_TimeTypeDef ds3231_getTime(void)
 {
   RTC_TimeTypeDef time;
 
+  uint8_t addr[]={DS3231_REG_SECOND};
   uint8_t buffer[3];
-  HAL_I2C_Master_Transmit(&hi2c1, DS3231_I2C_ADDR << 1, 0, 1, HAL_MAX_DELAY);
+  
+  HAL_I2C_Master_Transmit(&hi2c1, DS3231_I2C_ADDR << 1, addr, 1, HAL_MAX_DELAY);
   HAL_I2C_Master_Receive(&hi2c1, DS3231_I2C_ADDR << 1, buffer, 3, HAL_MAX_DELAY);
 
   time.Hours = ((buffer[2] >> 4) & 0x03) * 10 + (buffer[2] & 0x0F);
@@ -303,8 +307,10 @@ RTC_DateTypeDef ds3231_getDate(void)
 {
   RTC_DateTypeDef date;
 
+  uint8_t addr[]={DS3231_REG_DOW};
   uint8_t buffer[4];
-  HAL_I2C_Master_Transmit(&hi2c1, DS3231_I2C_ADDR << 1, 3, 1, HAL_MAX_DELAY);
+  
+  HAL_I2C_Master_Transmit(&hi2c1, DS3231_I2C_ADDR << 1, addr, 1, HAL_MAX_DELAY);
   HAL_I2C_Master_Receive(&hi2c1, DS3231_I2C_ADDR << 1, buffer, 4, HAL_MAX_DELAY);
 
   date.Year = ((buffer[3] >> 4) & 0x0F) * 10 + (buffer[3] & 0x0F);

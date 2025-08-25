@@ -20,29 +20,18 @@ void nixie_setDigits(uint8_t *digit)
 
 void nixie_refresh(void)
 {
-    for (int i = 0; i < DIGITS_NUM; i++)
+    for (int i = 0; i < 10; i++)
     {
-        if (i == _current_displayed_index)
-        {
-            HAL_GPIO_WritePin(_nixie_a_ports[i], _nixie_a_pins[i], GPIO_PIN_SET);
-        }
-        else
-        {
-            HAL_GPIO_WritePin(_nixie_a_ports[i], _nixie_a_pins[i], GPIO_PIN_RESET);
-        }
+        HAL_GPIO_WritePin(_nixie_d_ports[i], _nixie_d_pins[i], GPIO_PIN_RESET);
     }
 
-    for(int i = 0; i < 10; i++)
+    for (int i = 0; i < DIGITS_NUM; i++)
     {
-        if (i == _displayed_digits[_current_displayed_index])
-        {
-            HAL_GPIO_WritePin(_nixie_d_ports[i], _nixie_d_pins[i], GPIO_PIN_SET);
-        }
-        else
-        {
-            HAL_GPIO_WritePin(_nixie_d_ports[i], _nixie_d_pins[i], GPIO_PIN_RESET);
-        }
+        HAL_GPIO_WritePin(_nixie_a_ports[i], _nixie_a_pins[i], (i == _current_displayed_index) ? GPIO_PIN_SET : GPIO_PIN_RESET);
     }
-    
+
+    uint8_t dispDig = _displayed_digits[_current_displayed_index];
+    HAL_GPIO_WritePin(_nixie_d_ports[dispDig], _nixie_d_pins[dispDig], GPIO_PIN_SET);
+
     _current_displayed_index = (_current_displayed_index + 1) % DIGITS_NUM;
 }
