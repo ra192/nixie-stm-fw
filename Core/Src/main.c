@@ -37,6 +37,8 @@
 #define DS3231_REG_DOW 	0x03
 
 #define NIXIE_REFRESH_MS 2
+#define TIME_REFRESH_MS 1000
+#define TIME_SYNC_MS 60000
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -62,6 +64,7 @@ static void MX_RTC_Init(void);
 /* USER CODE BEGIN PFP */
 RTC_TimeTypeDef ds3231_getTime(void);
 RTC_DateTypeDef ds3231_getDate(void);
+void syncTimeWithDS3231(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -102,10 +105,12 @@ int main(void)
   MX_RTC_Init();
   /* USER CODE BEGIN 2 */
   uint32_t currentMs;
-  uint32_t nixiePrevRefreshMs = 0;
-  uint32_t timePrevRefreshMs = 0;
+  uint32_t nixieLastRefreshMs = 0;
+  uint32_t timeLastRefreshMs = 0;
+  uint32_t syncTimeLastRefreshMs = 0;
 
   nixie_setDigits((uint8_t[]){0, 0, 0, 0, 0, 0}); // Set initial digits to display
+  syncTimeWithDS3231();                     // Sync time from DS3231 to RTC
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -114,18 +119,23 @@ int main(void)
   {
     currentMs = HAL_GetTick();
 
-    if ((currentMs - nixiePrevRefreshMs) >= NIXIE_REFRESH_MS)
+    if ((currentMs - nixieLastRefreshMs) >= NIXIE_REFRESH_MS)
     {
-      nixiePrevRefreshMs = currentMs;
+      nixieLastRefreshMs = currentMs;
       nixie_refresh();
     }
 
-    if ((currentMs - timePrevRefreshMs) >= 1000)
+    if ((currentMs - timeLastRefreshMs) >= TIME_REFRESH_MS)
     { // Every second, change the digits
       HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
       nixie_setDigits((uint8_t[]){0, 0, sTime.Minutes / 10, sTime.Minutes % 10, sTime.Seconds / 10, sTime.Seconds % 10});
     }
 
+    if ((currentMs - syncTimeLastRefreshMs) >= TIME_SYNC_MS)
+    { // Every minute, sync time from DS3231 to RTC
+      syncTimeLastRefreshMs = currentMs;
+      syncTimeWithDS3231();
+    }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -319,6 +329,14 @@ RTC_DateTypeDef ds3231_getDate(void)
   date.WeekDay = buffer[0] & 0x07;
 
   return date;
+}
+
+void syncTimeWithDS3231(void)
+{
+  sTime = ds3231_getTime();
+  sDate = ds3231_getDate();
+  HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
+  HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
 }
 /* USER CODE END 4 */
 
