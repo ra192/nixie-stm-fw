@@ -31,7 +31,21 @@ void nixie_refresh(void)
     }
 
     uint8_t dispDig = _displayed_digits[_current_displayed_index];
-    HAL_GPIO_WritePin(_nixie_d_ports[dispDig], _nixie_d_pins[dispDig], GPIO_PIN_SET);
+
+    if (dispDig < EMPTY_DIGIT)
+        HAL_GPIO_WritePin(_nixie_d_ports[dispDig], _nixie_d_pins[dispDig], GPIO_PIN_SET);
 
     _current_displayed_index = (_current_displayed_index + 1) % DIGITS_NUM;
+}
+
+uint8_t nixie_blink(uint8_t digit)
+{
+    if (HAL_GetTick() % 1000 >= 500) // Toggle every 500 ms
+    {
+        return digit;
+    }
+    else
+    {
+        return EMPTY_DIGIT;
+    }
 }
